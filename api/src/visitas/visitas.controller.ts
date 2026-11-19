@@ -7,8 +7,8 @@ export class VisitasController {
   constructor(private readonly visitas: VisitasService) {}
 
   @Get('inmuebles/:id/disponibilidad')
-  disponibilidad(@Param('id') id: string) {
-    return this.visitas.disponibilidad(id);
+  disponibilidad(@Param('id') id: string, @Query('usuarioId') usuarioId?: string) {
+    return this.visitas.disponibilidad(id, usuarioId);
   }
 
   @Post('inmuebles/:id/disponibilidad')

@@ -8,6 +8,15 @@ export const USUARIOS = [
   { id: 'u-diego', nombre: 'Diego Rojas', email: 'diego@utama.demo', rol: 'INQUILINO', nivel: 'NUEVO_VERIFICADO', ahorroVaquita: 0, paisResidencia: 'ES' },
 ] as const;
 
+/** Posiciones de ejemplo (aproximadas) de cada inmueble de la demo. */
+const COORDENADAS: Record<string, { latitud: number; longitud: number }> = {
+  'inm-1': { latitud: -17.7616, longitud: -63.197 },
+  'inm-2': { latitud: -17.3728, longitud: -66.1581 },
+  'inm-3': { latitud: -17.7845, longitud: -63.1812 },
+  'inm-4': { latitud: -16.5104, longitud: -68.1262 },
+  'inm-5': { latitud: -17.7441, longitud: -63.1372 },
+};
+
 const INMUEBLES = [
   {
     id: 'inm-1', duenoId: 'u-carlos', tipo: 'VIVIENDA', ciudad: 'Santa Cruz', zona: 'Equipetrol',
@@ -79,6 +88,7 @@ export async function sembar(prisma: PrismaClient) {
       await prisma.inmueble.create({
         data: {
           ...inm,
+          ...COORDENADAS[inm.id],
           folioHash: hashFolio(inm.folioNumero),
           folioVerificado: true,
           estado: 'PUBLICADO',
@@ -93,6 +103,10 @@ export async function sembar(prisma: PrismaClient) {
     if ((await prisma.foto.count({ where: { inmuebleId: inm.id } })) === 0) {
       await prisma.foto.createMany({ data: fotosDe(i).map((f) => ({ ...f, inmuebleId: inm.id })) });
     }
+  }
+  // Completa la posición de los inmuebles de ejemplo creados antes de que existieran las coordenadas.
+  for (const [id, c] of Object.entries(COORDENADAS)) {
+    await prisma.inmueble.updateMany({ where: { id, latitud: null }, data: c });
   }
   await asegurarDisponibilidad(prisma);
 }

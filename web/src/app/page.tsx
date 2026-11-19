@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { ComoFunciona } from '@/components/ComoFunciona';
 import { Hero } from '@/components/Hero';
 import { InmuebleCard } from '@/components/InmuebleCard';
-import { IconoTipo } from '@/components/Iconos';
+import { Icono, IconoTipo } from '@/components/Iconos';
+import { MapaInmuebles } from '@/components/MapaInmuebles';
 import { Titulo } from '@/components/Motivos';
 import { Selector } from '@/components/Selector';
 import { Cargando, Mensaje } from '@/components/ui';
@@ -23,6 +24,7 @@ export default function Inicio() {
   const [maxMonto, setMaxMonto] = useState('');
   const [items, setItems] = useState<Inmueble[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [vista, setVista] = useState<'lista' | 'mapa'>('lista');
 
   useEffect(() => {
     let cancelado = false;
@@ -64,7 +66,17 @@ export default function Inicio() {
       <ComoFunciona />
 
       <section className="space-y-5">
-        <Titulo>Inmuebles verificados</Titulo>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Titulo>Inmuebles verificados</Titulo>
+          <div role="group" aria-label="Forma de ver los inmuebles" className="flex gap-1.5">
+            <button type="button" aria-pressed={vista === 'lista'} className={`chip ${vista === 'lista' ? 'chip-activo' : ''}`} onClick={() => setVista('lista')}>
+              <Icono nombre="lista" /> Lista
+            </button>
+            <button type="button" aria-pressed={vista === 'mapa'} className={`chip ${vista === 'mapa' ? 'chip-activo' : ''}`} onClick={() => setVista('mapa')}>
+              <Icono nombre="mapa" /> Mapa
+            </button>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           {TIPOS.map((t) => (
             <button key={t.clave} className={`chip ${tipo === t.clave ? 'chip-activo' : ''}`} onClick={() => setTipo(t.clave)}>
@@ -119,7 +131,8 @@ export default function Inicio() {
         {error && <Mensaje tipo="error">{error}</Mensaje>}
         {!error && items === null && <Cargando texto="Cargando inmuebles…" />}
         {items && items.length === 0 && <Mensaje tipo="info">No hay inmuebles con esos filtros.</Mensaje>}
-        {items && items.length > 0 && (
+        {items && items.length > 0 && vista === 'mapa' && <MapaInmuebles items={items} />}
+        {items && items.length > 0 && vista === 'lista' && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((i) => (
               <InmuebleCard key={i.id} i={i} />

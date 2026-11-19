@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { FolioService } from '../folio/folio.service.js';
-import { ESTADOS_VIGENTES, enmascararFolio } from '../common/util.js';
+import { ESTADOS_VIGENTES, aproximarCoordenadas, enmascararFolio } from '../common/util.js';
 import type { CrearInmuebleDto } from './dto.js';
 
 export interface FiltrosInmuebles {
@@ -32,9 +32,18 @@ export class InmueblesService {
   private publico(i: any, revelarDireccion = false) {
     // El hash del folio es público (también va on-chain); el número completo y la dirección exacta no.
     // Los documentos subidos (folio y CI) nunca se exponen.
-    const { direccion, folioNumero, contratos, folioDocUrl: _f, ciDocUrl: _c, ...resto } = i;
+    const { direccion, folioNumero, contratos, folioDocUrl: _f, ciDocUrl: _c, latitud, longitud, ...resto } = i;
+    // Las coordenadas exactas siguen la misma regla que la dirección; al resto se le da una posición aproximada.
+    const coords =
+      latitud == null || longitud == null
+        ? { latitud: null, longitud: null }
+        : revelarDireccion
+          ? { latitud, longitud }
+          : aproximarCoordenadas(latitud, longitud, i.id);
     return {
       ...resto,
+      ...coords,
+      ubicacionExacta: revelarDireccion && latitud != null,
       folioMascara: enmascararFolio(folioNumero),
       ocupadoHasta: contratos?.[0]?.vencimiento ?? null,
       direccionVisible: revelarDireccion,
@@ -113,6 +122,14 @@ export class InmueblesService {
     for (const campo of ['duenoId', 'titulo', 'descripcion', 'tipo', 'ciudad', 'zona', 'direccion', 'folioNumero'] as const) {
       if (!d[campo]) throw new BadRequestException(`Falta el campo "${campo}"`);
     }
+    const lat = Number(d.latitud);
+    const lng = Number(d.longitud);
+    if (d.latitud == null || d.longitud == null || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      throw new BadRequestException('Falta la ubicación: indica la latitud y la longitud del inmueble');
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw new BadRequestException('Las coordenadas están fuera de rango (latitud −90 a 90, longitud −180 a 180)');
+    }
     if (!(d.montoUsdc > 0) || !(d.superficieM2 > 0)) {
       throw new BadRequestException('El monto y la superficie deben ser mayores a 0');
     }
@@ -137,6 +154,8 @@ export class InmueblesService {
         ciudad: d.ciudad,
         zona: d.zona,
         direccion: d.direccion,
+        latitud: lat,
+        longitud: lng,
         superficieM2: d.superficieM2,
         ambientes: d.ambientes ?? 1,
         dormitorios: d.dormitorios ?? 0,

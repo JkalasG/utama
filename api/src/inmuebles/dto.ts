@@ -7,6 +7,9 @@ export interface CrearInmuebleDto {
   ciudad: string;
   zona: string;
   direccion: string;
+  /** Coordenadas exactas (grados decimales). */
+  latitud: number;
+  longitud: number;
   superficieM2: number;
   ambientes?: number;
   dormitorios?: number;

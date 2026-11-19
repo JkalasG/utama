@@ -27,6 +27,8 @@ export type AggregateInmueble = {
 }
 
 export type InmuebleAvgAggregateOutputType = {
+  latitud: number | null
+  longitud: number | null
   superficieM2: number | null
   ambientes: number | null
   dormitorios: number | null
@@ -37,6 +39,8 @@ export type InmuebleAvgAggregateOutputType = {
 }
 
 export type InmuebleSumAggregateOutputType = {
+  latitud: number | null
+  longitud: number | null
   superficieM2: number | null
   ambientes: number | null
   dormitorios: number | null
@@ -56,6 +60,8 @@ export type InmuebleMinAggregateOutputType = {
   ciudad: string | null
   zona: string | null
   direccion: string | null
+  latitud: number | null
+  longitud: number | null
   superficieM2: number | null
   ambientes: number | null
   dormitorios: number | null
@@ -87,6 +93,8 @@ export type InmuebleMaxAggregateOutputType = {
   ciudad: string | null
   zona: string | null
   direccion: string | null
+  latitud: number | null
+  longitud: number | null
   superficieM2: number | null
   ambientes: number | null
   dormitorios: number | null
@@ -118,6 +126,8 @@ export type InmuebleCountAggregateOutputType = {
   ciudad: number
   zona: number
   direccion: number
+  latitud: number
+  longitud: number
   superficieM2: number
   ambientes: number
   dormitorios: number
@@ -142,6 +152,8 @@ export type InmuebleCountAggregateOutputType = {
 
 
 export type InmuebleAvgAggregateInputType = {
+  latitud?: true
+  longitud?: true
   superficieM2?: true
   ambientes?: true
   dormitorios?: true
@@ -152,6 +164,8 @@ export type InmuebleAvgAggregateInputType = {
 }
 
 export type InmuebleSumAggregateInputType = {
+  latitud?: true
+  longitud?: true
   superficieM2?: true
   ambientes?: true
   dormitorios?: true
@@ -171,6 +185,8 @@ export type InmuebleMinAggregateInputType = {
   ciudad?: true
   zona?: true
   direccion?: true
+  latitud?: true
+  longitud?: true
   superficieM2?: true
   ambientes?: true
   dormitorios?: true
@@ -202,6 +218,8 @@ export type InmuebleMaxAggregateInputType = {
   ciudad?: true
   zona?: true
   direccion?: true
+  latitud?: true
+  longitud?: true
   superficieM2?: true
   ambientes?: true
   dormitorios?: true
@@ -233,6 +251,8 @@ export type InmuebleCountAggregateInputType = {
   ciudad?: true
   zona?: true
   direccion?: true
+  latitud?: true
+  longitud?: true
   superficieM2?: true
   ambientes?: true
   dormitorios?: true
@@ -351,6 +371,8 @@ export type InmuebleGroupByOutputType = {
   ciudad: string
   zona: string
   direccion: string
+  latitud: number | null
+  longitud: number | null
   superficieM2: number
   ambientes: number
   dormitorios: number
@@ -405,6 +427,8 @@ export type InmuebleWhereInput = {
   ciudad?: Prisma.StringFilter<"Inmueble"> | string
   zona?: Prisma.StringFilter<"Inmueble"> | string
   direccion?: Prisma.StringFilter<"Inmueble"> | string
+  latitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
+  longitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
   superficieM2?: Prisma.IntFilter<"Inmueble"> | number
   ambientes?: Prisma.IntFilter<"Inmueble"> | number
   dormitorios?: Prisma.IntFilter<"Inmueble"> | number
@@ -442,6 +466,8 @@ export type InmuebleOrderByWithRelationInput = {
   ciudad?: Prisma.SortOrder
   zona?: Prisma.SortOrder
   direccion?: Prisma.SortOrder
+  latitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -483,6 +509,8 @@ export type InmuebleWhereUniqueInput = Prisma.AtLeast<{
   ciudad?: Prisma.StringFilter<"Inmueble"> | string
   zona?: Prisma.StringFilter<"Inmueble"> | string
   direccion?: Prisma.StringFilter<"Inmueble"> | string
+  latitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
+  longitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
   superficieM2?: Prisma.IntFilter<"Inmueble"> | number
   ambientes?: Prisma.IntFilter<"Inmueble"> | number
   dormitorios?: Prisma.IntFilter<"Inmueble"> | number
@@ -519,6 +547,8 @@ export type InmuebleOrderByWithAggregationInput = {
   ciudad?: Prisma.SortOrder
   zona?: Prisma.SortOrder
   direccion?: Prisma.SortOrder
+  latitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -558,6 +588,8 @@ export type InmuebleScalarWhereWithAggregatesInput = {
   ciudad?: Prisma.StringWithAggregatesFilter<"Inmueble"> | string
   zona?: Prisma.StringWithAggregatesFilter<"Inmueble"> | string
   direccion?: Prisma.StringWithAggregatesFilter<"Inmueble"> | string
+  latitud?: Prisma.FloatNullableWithAggregatesFilter<"Inmueble"> | number | null
+  longitud?: Prisma.FloatNullableWithAggregatesFilter<"Inmueble"> | number | null
   superficieM2?: Prisma.IntWithAggregatesFilter<"Inmueble"> | number
   ambientes?: Prisma.IntWithAggregatesFilter<"Inmueble"> | number
   dormitorios?: Prisma.IntWithAggregatesFilter<"Inmueble"> | number
@@ -588,6 +620,8 @@ export type InmuebleCreateInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -625,6 +659,8 @@ export type InmuebleUncheckedCreateInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -660,6 +696,8 @@ export type InmuebleUpdateInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -697,6 +735,8 @@ export type InmuebleUncheckedUpdateInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -733,6 +773,8 @@ export type InmuebleCreateManyInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -763,6 +805,8 @@ export type InmuebleUpdateManyMutationInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -794,6 +838,8 @@ export type InmuebleUncheckedUpdateManyInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -835,6 +881,8 @@ export type InmuebleCountOrderByAggregateInput = {
   ciudad?: Prisma.SortOrder
   zona?: Prisma.SortOrder
   direccion?: Prisma.SortOrder
+  latitud?: Prisma.SortOrder
+  longitud?: Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -857,6 +905,8 @@ export type InmuebleCountOrderByAggregateInput = {
 }
 
 export type InmuebleAvgOrderByAggregateInput = {
+  latitud?: Prisma.SortOrder
+  longitud?: Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -876,6 +926,8 @@ export type InmuebleMaxOrderByAggregateInput = {
   ciudad?: Prisma.SortOrder
   zona?: Prisma.SortOrder
   direccion?: Prisma.SortOrder
+  latitud?: Prisma.SortOrder
+  longitud?: Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -907,6 +959,8 @@ export type InmuebleMinOrderByAggregateInput = {
   ciudad?: Prisma.SortOrder
   zona?: Prisma.SortOrder
   direccion?: Prisma.SortOrder
+  latitud?: Prisma.SortOrder
+  longitud?: Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -929,6 +983,8 @@ export type InmuebleMinOrderByAggregateInput = {
 }
 
 export type InmuebleSumOrderByAggregateInput = {
+  latitud?: Prisma.SortOrder
+  longitud?: Prisma.SortOrder
   superficieM2?: Prisma.SortOrder
   ambientes?: Prisma.SortOrder
   dormitorios?: Prisma.SortOrder
@@ -991,6 +1047,14 @@ export type EnumTipoInmuebleFieldUpdateOperationsInput = {
 
 export type EnumTipoContratoFieldUpdateOperationsInput = {
   set?: $Enums.TipoContrato
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -1088,6 +1152,8 @@ export type InmuebleCreateWithoutDuenoInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1123,6 +1189,8 @@ export type InmuebleUncheckedCreateWithoutDuenoInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1188,6 +1256,8 @@ export type InmuebleScalarWhereInput = {
   ciudad?: Prisma.StringFilter<"Inmueble"> | string
   zona?: Prisma.StringFilter<"Inmueble"> | string
   direccion?: Prisma.StringFilter<"Inmueble"> | string
+  latitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
+  longitud?: Prisma.FloatNullableFilter<"Inmueble"> | number | null
   superficieM2?: Prisma.IntFilter<"Inmueble"> | number
   ambientes?: Prisma.IntFilter<"Inmueble"> | number
   dormitorios?: Prisma.IntFilter<"Inmueble"> | number
@@ -1218,6 +1288,8 @@ export type InmuebleCreateWithoutFotosInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1254,6 +1326,8 @@ export type InmuebleUncheckedCreateWithoutFotosInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1304,6 +1378,8 @@ export type InmuebleUpdateWithoutFotosInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1340,6 +1416,8 @@ export type InmuebleUncheckedUpdateWithoutFotosInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1374,6 +1452,8 @@ export type InmuebleCreateWithoutDisponibilidadInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1410,6 +1490,8 @@ export type InmuebleUncheckedCreateWithoutDisponibilidadInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1460,6 +1542,8 @@ export type InmuebleUpdateWithoutDisponibilidadInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1496,6 +1580,8 @@ export type InmuebleUncheckedUpdateWithoutDisponibilidadInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1530,6 +1616,8 @@ export type InmuebleCreateWithoutVisitasInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1566,6 +1654,8 @@ export type InmuebleUncheckedCreateWithoutVisitasInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1616,6 +1706,8 @@ export type InmuebleUpdateWithoutVisitasInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1652,6 +1744,8 @@ export type InmuebleUncheckedUpdateWithoutVisitasInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1686,6 +1780,8 @@ export type InmuebleCreateWithoutOfertasInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1722,6 +1818,8 @@ export type InmuebleUncheckedCreateWithoutOfertasInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1772,6 +1870,8 @@ export type InmuebleUpdateWithoutOfertasInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1808,6 +1908,8 @@ export type InmuebleUncheckedUpdateWithoutOfertasInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1842,6 +1944,8 @@ export type InmuebleCreateWithoutContratosInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1878,6 +1982,8 @@ export type InmuebleUncheckedCreateWithoutContratosInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -1928,6 +2034,8 @@ export type InmuebleUpdateWithoutContratosInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1964,6 +2072,8 @@ export type InmuebleUncheckedUpdateWithoutContratosInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1998,6 +2108,8 @@ export type InmuebleCreateManyDuenoInput = {
   ciudad: string
   zona: string
   direccion: string
+  latitud?: number | null
+  longitud?: number | null
   superficieM2: number
   ambientes?: number
   dormitorios?: number
@@ -2028,6 +2140,8 @@ export type InmuebleUpdateWithoutDuenoInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2063,6 +2177,8 @@ export type InmuebleUncheckedUpdateWithoutDuenoInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2098,6 +2214,8 @@ export type InmuebleUncheckedUpdateManyWithoutDuenoInput = {
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   zona?: Prisma.StringFieldUpdateOperationsInput | string
   direccion?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   superficieM2?: Prisma.IntFieldUpdateOperationsInput | number
   ambientes?: Prisma.IntFieldUpdateOperationsInput | number
   dormitorios?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2196,6 +2314,8 @@ export type InmuebleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ciudad?: boolean
   zona?: boolean
   direccion?: boolean
+  latitud?: boolean
+  longitud?: boolean
   superficieM2?: boolean
   ambientes?: boolean
   dormitorios?: boolean
@@ -2234,6 +2354,8 @@ export type InmuebleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ciudad?: boolean
   zona?: boolean
   direccion?: boolean
+  latitud?: boolean
+  longitud?: boolean
   superficieM2?: boolean
   ambientes?: boolean
   dormitorios?: boolean
@@ -2266,6 +2388,8 @@ export type InmuebleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ciudad?: boolean
   zona?: boolean
   direccion?: boolean
+  latitud?: boolean
+  longitud?: boolean
   superficieM2?: boolean
   ambientes?: boolean
   dormitorios?: boolean
@@ -2298,6 +2422,8 @@ export type InmuebleSelectScalar = {
   ciudad?: boolean
   zona?: boolean
   direccion?: boolean
+  latitud?: boolean
+  longitud?: boolean
   superficieM2?: boolean
   ambientes?: boolean
   dormitorios?: boolean
@@ -2319,7 +2445,7 @@ export type InmuebleSelectScalar = {
   creadoEn?: boolean
 }
 
-export type InmuebleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "duenoId" | "titulo" | "descripcion" | "tipo" | "tipoContrato" | "ciudad" | "zona" | "direccion" | "superficieM2" | "ambientes" | "dormitorios" | "banos" | "amoblado" | "montoUsdc" | "plazoMeses" | "garantiaPct" | "plantillaReglas" | "reglasRecomendadas" | "folioNumero" | "folioHash" | "folioVerificado" | "folioDocUrl" | "ciDocUrl" | "inmuebleVisitado" | "inscritoDDRR" | "estado" | "creadoEn", ExtArgs["result"]["inmueble"]>
+export type InmuebleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "duenoId" | "titulo" | "descripcion" | "tipo" | "tipoContrato" | "ciudad" | "zona" | "direccion" | "latitud" | "longitud" | "superficieM2" | "ambientes" | "dormitorios" | "banos" | "amoblado" | "montoUsdc" | "plazoMeses" | "garantiaPct" | "plantillaReglas" | "reglasRecomendadas" | "folioNumero" | "folioHash" | "folioVerificado" | "folioDocUrl" | "ciDocUrl" | "inmuebleVisitado" | "inscritoDDRR" | "estado" | "creadoEn", ExtArgs["result"]["inmueble"]>
 export type InmuebleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dueno?: boolean | Prisma.UsuarioDefaultArgs<ExtArgs>
   fotos?: boolean | Prisma.Inmueble$fotosArgs<ExtArgs>
@@ -2356,6 +2482,11 @@ export type $InmueblePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ciudad: string
     zona: string
     direccion: string
+    /**
+     * Posición exacta del inmueble (WGS84). Públicamente solo se muestra una zona aproximada.
+     */
+    latitud: number | null
+    longitud: number | null
     superficieM2: number
     ambientes: number
     dormitorios: number
@@ -2813,6 +2944,8 @@ export interface InmuebleFieldRefs {
   readonly ciudad: Prisma.FieldRef<"Inmueble", 'String'>
   readonly zona: Prisma.FieldRef<"Inmueble", 'String'>
   readonly direccion: Prisma.FieldRef<"Inmueble", 'String'>
+  readonly latitud: Prisma.FieldRef<"Inmueble", 'Float'>
+  readonly longitud: Prisma.FieldRef<"Inmueble", 'Float'>
   readonly superficieM2: Prisma.FieldRef<"Inmueble", 'Int'>
   readonly ambientes: Prisma.FieldRef<"Inmueble", 'Int'>
   readonly dormitorios: Prisma.FieldRef<"Inmueble", 'Int'>

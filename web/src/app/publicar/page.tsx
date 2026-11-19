@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icono, IconoTipo } from '@/components/Iconos';
+import { Mapa, type Coordenada } from '@/components/Mapa';
 import { Titulo } from '@/components/Motivos';
 import { useReglas } from '@/components/ReglasInmueble';
 import { Selector } from '@/components/Selector';
@@ -11,6 +12,24 @@ import { Mensaje } from '@/components/ui';
 import { api, mensajeError } from '@/lib/api';
 import type { Inmueble, ResultadoFolio } from '@/lib/types';
 import { useUsuario } from '@/lib/usuario';
+
+/** Centros de las ciudades principales, para que el mapa abra cerca. */
+const CENTROS: Record<string, Coordenada> = {
+  'santa cruz': { lat: -17.7833, lng: -63.1821 },
+  cochabamba: { lat: -17.3895, lng: -66.1568 },
+  'la paz': { lat: -16.4897, lng: -68.1193 },
+  'el alto': { lat: -16.5, lng: -68.1633 },
+  sucre: { lat: -19.0196, lng: -65.2619 },
+  tarija: { lat: -21.5355, lng: -64.7296 },
+  oruro: { lat: -17.9647, lng: -67.1061 },
+  potosí: { lat: -19.5836, lng: -65.7531 },
+};
+
+/** Convierte "−17,76" o "-17.76" en número; devuelve null si no es un número válido. */
+function numero(t: string): number | null {
+  const n = Number(t.trim().replace(',', '.'));
+  return t.trim() !== '' && Number.isFinite(n) ? n : null;
+}
 
 interface Escenario {
   clave: string;
@@ -30,6 +49,8 @@ export default function Publicar() {
     ciudad: 'Santa Cruz',
     zona: '',
     direccion: '',
+    latitud: '',
+    longitud: '',
     superficieM2: '80',
     dormitorios: '2',
     banos: '1',
@@ -57,6 +78,28 @@ export default function Publicar() {
   useEffect(() => {
     api.get<Escenario[]>('/folio/escenarios').then(setEscenarios).catch(() => {});
   }, []);
+
+  const lat = numero(f.latitud);
+  const lng = numero(f.longitud);
+  const coordsValidas = lat !== null && lng !== null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+  const fueraDeBolivia = coordsValidas && (lat < -22.95 || lat > -9.6 || lng < -69.7 || lng > -57.4);
+  const elegida = useMemo<Coordenada | null>(() => (coordsValidas ? { lat: lat as number, lng: lng as number } : null), [coordsValidas, lat, lng]);
+  const centro = CENTROS[f.ciudad.trim().toLowerCase()] ?? null;
+  const [gps, setGps] = useState<string | null>(null);
+
+  function fijarPosicion(c: Coordenada) {
+    setF((x) => ({ ...x, latitud: c.lat.toFixed(6), longitud: c.lng.toFixed(6) }));
+  }
+
+  function usarMiUbicacion() {
+    setGps(null);
+    if (!navigator.geolocation) return setGps('Este navegador no permite obtener la ubicación. Haz clic en el mapa o escribe las coordenadas.');
+    navigator.geolocation.getCurrentPosition(
+      (p) => fijarPosicion({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => setGps('No se pudo obtener tu ubicación (revisa el permiso del navegador). Haz clic en el mapa o escribe las coordenadas.'),
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  }
 
   function elegirPlantilla(p: 'FLEXIBLE' | 'MODERADA' | 'ESTRICTA') {
     set('plantillaReglas', p);
@@ -116,6 +159,8 @@ export default function Publicar() {
         ciudad: f.ciudad,
         zona: f.zona,
         direccion: f.direccion,
+        latitud: lat,
+        longitud: lng,
         superficieM2: Number(f.superficieM2),
         dormitorios: Number(f.dormitorios),
         banos: Number(f.banos),
@@ -150,7 +195,7 @@ export default function Publicar() {
     );
   }
 
-  const listo = folio?.verificado && f.titulo && f.zona && f.direccion && f.descripcion;
+  const listo = folio?.verificado && f.titulo && f.zona && f.direccion && f.descripcion && coordsValidas;
   const plantillaReglas = f.plantillaReglas as 'FLEXIBLE' | 'MODERADA' | 'ESTRICTA';
 
   return (
@@ -191,6 +236,30 @@ export default function Publicar() {
           <Campo t="Ciudad"><input className="input" value={f.ciudad} onChange={(e) => set('ciudad', e.target.value)} /></Campo>
           <Campo t="Zona o barrio"><input className="input" value={f.zona} onChange={(e) => set('zona', e.target.value)} /></Campo>
           <Campo t="Dirección exacta (privada)" className="sm:col-span-2"><input className="input" value={f.direccion} onChange={(e) => set('direccion', e.target.value)} /></Campo>
+          <div className="space-y-3 sm:col-span-2">
+            <div>
+              <p className="label !mb-0 flex items-center gap-1.5"><Icono nombre="ubicacion" className="h-4 w-4 text-terracota" /> Ubicación en el mapa</p>
+              <p className="text-xs text-suave">
+                Haz clic en el mapa, arrastra el alfiler, usa tu ubicación o escribe la latitud y la longitud. Con estos datos el inmueble aparece en el mapa de Utama. El público verá solo una zona aproximada
+                (unos 200 m a la redonda); la posición exacta la ven quienes agendan una visita o firman el contrato.
+              </p>
+            </div>
+            <Mapa elegida={elegida} onElegir={fijarPosicion} centro={centro} alto="h-72" etiqueta="Mapa para ubicar el inmueble" />
+            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+              <Campo t="Latitud"><input className="input" inputMode="decimal" placeholder="-17.783300" value={f.latitud} onChange={(e) => set('latitud', e.target.value)} /></Campo>
+              <Campo t="Longitud"><input className="input" inputMode="decimal" placeholder="-63.182100" value={f.longitud} onChange={(e) => set('longitud', e.target.value)} /></Campo>
+              <div className="flex items-end">
+                <button type="button" className="btn btn-sec w-full sm:w-auto" onClick={usarMiUbicacion}>
+                  <Icono nombre="gps" /> Usar mi ubicación
+                </button>
+              </div>
+            </div>
+            {(f.latitud || f.longitud) && !coordsValidas && (
+              <p className="text-xs font-semibold text-peligro">Escribe números válidos: latitud entre −90 y 90, longitud entre −180 y 180.</p>
+            )}
+            {fueraDeBolivia && <p className="text-xs font-semibold text-oro-texto">Esa posición queda fuera de Bolivia. Revisa que la latitud y la longitud no estén al revés.</p>}
+            {gps && <p className="text-xs text-suave">{gps}</p>}
+          </div>
           <Campo t="Superficie (m²)"><input className="input" type="number" value={f.superficieM2} onChange={(e) => set('superficieM2', e.target.value)} /></Campo>
           <Campo t="Dormitorios"><input className="input" type="number" value={f.dormitorios} onChange={(e) => set('dormitorios', e.target.value)} /></Campo>
           <Campo t="Baños"><input className="input" type="number" value={f.banos} onChange={(e) => set('banos', e.target.value)} /></Campo>
@@ -290,7 +359,7 @@ export default function Publicar() {
       <button className="btn btn-primario w-full" onClick={publicar} disabled={!listo || publicando}>
         {publicando ? 'Publicando…' : 'Publicar inmueble'}
       </button>
-      {!listo && <p className="text-center text-xs text-suave">Completa los datos y verifica el folio para publicar.</p>}
+      {!listo && <p className="text-center text-xs text-suave">Completa los datos, ubica el inmueble en el mapa y verifica el folio para publicar.</p>}
     </div>
   );
 }

@@ -6,18 +6,28 @@ import type { CrearSlotsDto, ReservarVisitaDto } from './dto.js';
 export class VisitasService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Horarios futuros de un inmueble, con la marca de si ya están reservados. */
-  async disponibilidad(inmuebleId: string) {
-    const slots = await this.prisma.disponibilidad.findMany({
-      where: { inmuebleId, inicio: { gt: new Date() } },
-      orderBy: { inicio: 'asc' },
-      include: { visita: { select: { id: true } } },
-    });
+  /**
+   * Horarios futuros de un inmueble, con la marca de si ya están reservados.
+   * Si se indica el usuario: el dueño ve quién reservó cada horario y el inquilino ve cuáles son suyos.
+   */
+  async disponibilidad(inmuebleId: string, usuarioId?: string) {
+    const [slots, inmueble] = await Promise.all([
+      this.prisma.disponibilidad.findMany({
+        where: { inmuebleId, inicio: { gt: new Date() } },
+        orderBy: { inicio: 'asc' },
+        include: { visita: { select: { id: true, inquilinoId: true, inquilino: { select: { nombre: true } } } } },
+      }),
+      this.prisma.inmueble.findUnique({ where: { id: inmuebleId }, select: { duenoId: true } }),
+    ]);
+    const esDueno = !!usuarioId && inmueble?.duenoId === usuarioId;
     return slots.map((s) => ({
       id: s.id,
       inicio: s.inicio,
       fin: s.fin,
       reservada: !!s.visita,
+      visitaId: s.visita && (esDueno || s.visita.inquilinoId === usuarioId) ? s.visita.id : null,
+      mia: !!s.visita && s.visita.inquilinoId === usuarioId,
+      reservadaPor: s.visita && esDueno ? s.visita.inquilino.nombre : null,
     }));
   }
 
@@ -31,6 +41,14 @@ export class VisitasService {
       if (isNaN(+inicio) || isNaN(+fin) || fin <= inicio) throw new BadRequestException('Horario inválido');
       return { inmuebleId, inicio, fin };
     });
+    // Dos horarios del mismo inmueble no pueden cruzarse: dos visitantes quedarían citados a la vez.
+    for (const [i, h] of data.entries()) {
+      const cruzaConNuevo = data.some((o, j) => j !== i && o.inicio < h.fin && o.fin > h.inicio);
+      const cruzaConExistente = await this.prisma.disponibilidad.findFirst({
+        where: { inmuebleId, inicio: { lt: h.fin }, fin: { gt: h.inicio } },
+      });
+      if (cruzaConNuevo || cruzaConExistente) throw new ConflictException('Ese horario se cruza con otro ya definido para este inmueble');
+    }
     await this.prisma.disponibilidad.createMany({ data });
     return this.disponibilidad(inmuebleId);
   }

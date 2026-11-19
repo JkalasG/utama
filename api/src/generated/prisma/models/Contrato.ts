@@ -1025,14 +1025,6 @@ export type EnumEstadoContratoFieldUpdateOperationsInput = {
   set?: $Enums.EstadoContrato
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ContratoCreateNestedOneWithoutInventariosInput = {
   create?: Prisma.XOR<Prisma.ContratoCreateWithoutInventariosInput, Prisma.ContratoUncheckedCreateWithoutInventariosInput>
   connectOrCreate?: Prisma.ContratoCreateOrConnectWithoutInventariosInput

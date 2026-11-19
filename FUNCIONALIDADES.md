@@ -44,7 +44,7 @@ Cinco inmuebles (departamento y local en Santa Cruz, casa en Cochabamba, oficina
 |---|---|---|
 | M1 Identidad y cuentas | 🟡 | Registro, país → moneda, rol, verificación simulada. Sin passkeys ni teléfono |
 | M2 Verificación de inmuebles | 🟡 | Se suben folio y CI; la lectura es simulada; el hash es real |
-| M3 Marketplace | ✅ | Listado, filtros, ficha, insignias, estado. Sin mapa |
+| M3 Marketplace | ✅ | Listado, filtros, mapa de inmuebles (disponibles y en anticrético), ficha, insignias, estado |
 | M4 Reglas y condiciones | ✅ | 9 categorías × 3 plantillas, sello, y la penalidad de salida se aplica |
 | M5 Visitas y calendario | ✅ | Sin recordatorios por correo o SMS |
 | M6 Negociación y contrato | 🟡 | Ofertas y contraofertas; resumen. Sin chat ni firma digital propia |
@@ -88,8 +88,9 @@ Cada flujo usa este formato: **pantalla** → **llamadas a la API** → **tablas
 2. Condiciones: monto en USDC, plazo (12, 24 o 36 meses), fondo de garantía (10 a 20 %) y plantilla de reglas. Al elegir plantilla se sugiere la garantía (10, 15 o 20 %) y se muestran las 9 reglas. Casilla de **reglas recomendadas** (da el sello).
 3. Documentos: se sube el Folio Real y el documento de identidad (`POST /api/uploads`).
 4. **Verificar folio:** `POST /api/folio/verificar` con el número y el "folio de ejemplo". Espera 1,2 s y devuelve el resultado y el **hash SHA-256** del número normalizado (sin puntos, guiones ni espacios, en mayúsculas).
-5. Fotos desde la cámara (`capture` en el celular). Si no se sube ninguna, se usa una ilustración según el tipo.
-6. **Publicar:** `POST /api/inmuebles`. El backend vuelve a verificar el folio y:
+5. **Ubicación en el mapa (obligatoria):** se marca la posición haciendo clic en el mapa, arrastrando el alfiler, con «Usar mi ubicación» (GPS del navegador) o escribiendo la **latitud y la longitud**. El mapa abre en la ciudad escrita (Santa Cruz, Cochabamba, La Paz, El Alto, Sucre, Tarija, Oruro o Potosí). Avisa si la posición cae fuera de Bolivia. El backend rechaza con **400** si faltan las coordenadas o están fuera de rango (latitud −90 a 90, longitud −180 a 180).
+6. Fotos desde la cámara (`capture` en el celular). Si no se sube ninguna, se usa una ilustración según el tipo.
+7. **Publicar:** `POST /api/inmuebles`. El backend vuelve a verificar el folio y:
    - rechaza con **422** si el folio no está verificado (el mensaje dice el motivo);
    - rechaza con **409** si ese folio ya está registrado en Utama;
    - crea `Inmueble` en estado `PUBLICADO` con sus `Foto`.
@@ -104,7 +105,7 @@ Cada flujo usa este formato: **pantalla** → **llamadas a la API** → **tablas
 | Titular distinto al CI | ⛔ Rechazado |
 
 **Simulado:** la lectura del folio (no se abre ningún documento) y que "el titular coincide con el CI". **Real:** el hash, la unicidad del folio y el rechazo.
-**Falta:** lectura con IA, validación por QR, exigir un folio emitido hace menos de 30 días, ubicación y fecha reales de las fotos.
+**Falta:** lectura con IA, validación por QR, exigir un folio emitido hace menos de 30 días, comprobar que las coordenadas correspondan a la dirección escrita, ubicación y fecha reales de las fotos.
 
 ### F3 · Explorar y filtrar — ✅
 
@@ -115,27 +116,33 @@ Cada flujo usa este formato: **pantalla** → **llamadas a la API** → **tablas
 - Orden: primero los de **reglas recomendadas** (más visibilidad), luego los más recientes.
 - Cada tarjeta muestra insignias, el precio, el dueño con su nivel y el estado: **"Disponible"** o **"En anticrético hasta [fecha]"** (se lee del contrato vigente).
 - **Privacidad:** la respuesta no incluye la dirección exacta ni el número de folio completo (solo `••••2345`).
+- **Vista Lista / Mapa:** el botón «Mapa» muestra todos los inmuebles (OpenStreetMap con Leaflet). Alfiler verde azulado = disponible; dorado = **en anticrético**. Al tocar un alfiler aparece una tarjeta con foto, precio, estado y el botón «Ver». Respeta los mismos filtros que la lista. El mapa se ve claro u oscuro según el tema.
+- **Ubicación aproximada:** para el público, la API devuelve la posición **desplazada hasta ~200 m** (fija por inmueble, calculada con el id) y el mapa dibuja un círculo de zona. La posición exacta solo se devuelve al dueño, a quien tiene una visita agendada o a quien tiene un contrato (misma regla que la dirección).
 
-**Falta:** mapa aproximado, filtro por monto mínimo en pantalla (la API lo admite) y por características.
+**Falta:** agrupar alfileres cercanos (en la vista de todo el país los de una misma ciudad se superponen hasta acercar el mapa), filtro por monto mínimo en pantalla (la API lo admite) y por características.
 
 ### F4 · Ver la ficha y la dirección — ✅
 
 **Pantalla:** `/inmuebles/[id]`
 
 `GET /api/inmuebles/:id?usuarioId=…`. La dirección exacta solo se devuelve si el usuario es **el dueño**, **tiene una visita agendada** (confirmada o realizada) o **tiene un contrato** sobre ese inmueble. Para los demás, la ficha dice "se revela cuando agendas una visita".
-La ficha muestra galería, datos, insignias, las **reglas pactadas** (por categoría, según la plantilla), el precio con su equivalente en Bs (referencial) y el reparto.
+La ficha muestra un mapa de la ubicación (aproximada con círculo, o exacta con el alfiler si corresponde), galería, datos, insignias, las **reglas pactadas** (por categoría, según la plantilla), el precio con su equivalente en Bs (referencial) y el reparto.
 
 ### F5 · Agendar una visita — ✅
 
-**Pantalla:** ficha del inmueble
+**Pantallas:** ficha del inmueble (agenda del inmueble) y `Mi panel` (todas mis visitas)
 
-- **El dueño** agrega un horario libre (selector de fecha y hora; la visita dura 45 minutos): `POST /api/inmuebles/:id/disponibilidad`.
-- **El inquilino** elige un horario: `POST /api/visitas`. Se crea `Visita` y el horario queda tachado.
-- Reglas: el horario no puede ser pasado; no se agenda en el propio inmueble; el usuario debe estar verificado; **dos personas no pueden reservar el mismo horario** (restricción única en la base de datos; la segunda recibe 409).
-- Al reservar se revela la dirección exacta.
-- Cancelar (`DELETE /api/visitas/:id`, desde `Mi panel`) borra la visita y libera el horario.
+El calendario tiene cuatro vistas: **Mes** (con los horarios de cada día; al tocar un día se abre esa fecha), **Semana** y **Día** (con las horas, la línea de «ahora» y los horarios que se pisan lado a lado) y **Agenda** (lista por día de los próximos 30 días). Navega con ‹ Hoy ›. Abre en la próxima fecha con horarios. La semana empieza el lunes. En celulares abre en Agenda (inquilino) o Día (dueño), porque la semana no cabe. Las horas se muestran en la zona horaria del navegador.
 
-**Falta:** recordatorios automáticos por correo o SMS (solo aparecen en la campana, 7 días antes), y borrar un horario desde la pantalla (la API sí existe).
+- **El inquilino** ve los horarios libres (verde azulado), los ya reservados (gris) y los suyos (terracota). Toca uno libre y confirma «Reservar esta visita»: `POST /api/visitas`. Puede cancelar la suya desde el mismo detalle.
+- **El dueño** toca una **hora vacía** de la vista Semana o Día para ofrecer una visita de 45 minutos (`POST /api/inmuebles/:id/disponibilidad`); toca un horario libre para quitarlo (`DELETE /api/disponibilidad/:id`) o uno reservado para ver **quién lo reservó** y cancelarlo. Ya no existe el selector nativo de fecha y hora.
+- **Mi panel → Mis visitas:** calendario con todas mis visitas (como inquilino, terracota, y como dueño, dorado). Al tocar una se ve el inmueble, la dirección y se puede cancelar.
+- `GET /api/inmuebles/:id/disponibilidad?usuarioId=…` devuelve, además de `reservada`, el `visitaId` y `mia` si la visita es del usuario, y `reservadaPor` solo al dueño. Los demás solo saben que está reservado.
+- Reglas: el horario no puede ser pasado; **dos horarios del mismo inmueble no pueden cruzarse** (409); no se agenda en el propio inmueble; el usuario debe estar verificado; **dos personas no pueden reservar el mismo horario** (restricción única en la base; la segunda recibe 409).
+- Al reservar se revela la dirección exacta y la posición exacta en el mapa.
+- Cancelar (`DELETE /api/visitas/:id`) borra la visita y libera el horario.
+
+**Falta:** recordatorios automáticos por correo o SMS (solo aparecen en la campana, 7 días antes), agregar horarios con el teclado (hoy solo se hace tocando el calendario), horarios repetidos (ej. «todos los sábados») y que el dueño confirme o rechace cada visita (hoy se confirman solas).
 
 ### F6 · Negociar con ofertas — ✅
 
@@ -307,7 +314,7 @@ Todas bajo `/api`. Sin autenticación.
 | Chat entre inquilino y dueño | Solo hay ofertas |
 | Firma digital propia del contrato | La firma es el botón "Firmar y pagar" |
 | Correo, SMS y notificaciones push | Solo la campana dentro de la app |
-| Mapa del inmueble | — |
+| Mapa sin internet | El mapa base viene de OpenStreetMap: sin conexión no se dibujan las calles (los alfileres sí). No es para uso masivo; para producción hay que usar un proveedor de mapas propio |
 | Agentes inmobiliarios y verificadores, Utama Crédito, Utama Invierte, administración | Hoja de ruta |
 | Comisión de Utama | Se muestra 0,5 % como referencia, **es un número inventado** y no se cobra |
 | Tipos de contrato "alquiler con garantía" y "mixto" | Se pueden elegir al publicar, pero el flujo de pago es el del anticrético |

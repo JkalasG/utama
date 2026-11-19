@@ -107,6 +107,8 @@ export const InmuebleScalarFieldEnum = {
   ciudad: 'ciudad',
   zona: 'zona',
   direccion: 'direccion',
+  latitud: 'latitud',
+  longitud: 'longitud',
   superficieM2: 'superficieM2',
   ambientes: 'ambientes',
   dormitorios: 'dormitorios',

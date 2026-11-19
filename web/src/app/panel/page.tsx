@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { InmuebleCard } from '@/components/InmuebleCard';
+import { MisVisitas } from '@/components/MisVisitas';
 import { IconoNivel } from '@/components/Iconos';
 import { Chakana, Titulo } from '@/components/Motivos';
 import { Barra, Cargando, EstadoContratoBadge, Estrellas, Mensaje, Nivel } from '@/components/ui';
 import { api, mensajeError } from '@/lib/api';
-import { fechaCorta, fechaHora, NIVELES, usdc } from '@/lib/format';
+import { fechaCorta, NIVELES, usdc } from '@/lib/format';
 import type { Contrato, Inmueble, Oferta, Reputacion, Visita } from '@/lib/types';
 import { useUsuario } from '@/lib/usuario';
 
@@ -56,11 +57,6 @@ export default function Panel() {
     } catch (e) {
       setError(mensajeError(e));
     }
-  }
-
-  async function cancelarVisita(id: string) {
-    await api.del(`/visitas/${id}`);
-    await cargar();
   }
 
   async function responder(id: string, estado: 'ACEPTADA' | 'RECHAZADA') {
@@ -149,18 +145,7 @@ export default function Panel() {
 
       <section className="space-y-3">
         <Titulo>Mis visitas</Titulo>
-        {visitas.length === 0 && <p className="text-sm text-suave">No tienes visitas agendadas.</p>}
-        {visitas.map((v) => (
-          <div key={v.id} className="card flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-bold">{v.inmueble.titulo}</p>
-              <p className="text-sm text-suave">
-                {fechaHora(v.disponibilidad.inicio)} · {v.esDueno ? `Visita de ${v.inquilino.nombre}` : v.inmueble.direccion ?? `${v.inmueble.zona}, ${v.inmueble.ciudad}`}
-              </p>
-            </div>
-            <button className="btn btn-peligro !py-1.5" onClick={() => cancelarVisita(v.id)}>Cancelar</button>
-          </div>
-        ))}
+        <MisVisitas visitas={visitas} onCambio={cargar} />
       </section>
 
       <section className="space-y-3">

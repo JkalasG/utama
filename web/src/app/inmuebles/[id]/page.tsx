@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AgendaVisitas } from '@/components/AgendaVisitas';
+import { Mapa, type PuntoMapa } from '@/components/Mapa';
 import { Icono } from '@/components/Iconos';
 import { Chakana, Titulo, Ubicacion } from '@/components/Motivos';
 import { ReglasInmueble, useConfig } from '@/components/ReglasInmueble';
 import { Cargando, Insignias, Mensaje, Nivel, TipoEtiqueta } from '@/components/ui';
 import { anticretico } from '@/lib/anticretico';
 import { api, mensajeError } from '@/lib/api';
-import { diaClave, fechaCorta, fechaHora, hora, usdc } from '@/lib/format';
+import { fechaCorta, usdc } from '@/lib/format';
 import type { Inmueble, Oferta, Slot } from '@/lib/types';
 import { useUsuario } from '@/lib/usuario';
 
@@ -30,7 +32,6 @@ export default function FichaInmueble() {
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [foto, setFoto] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
   const [terminos, setTerminos] = useState<Terminos | null>(null);
   const [metodo, setMetodo] = useState<'USDC' | 'BOB'>('USDC');
   const [procesando, setProcesando] = useState(false);
@@ -43,7 +44,7 @@ export default function FichaInmueble() {
       const qs = usuario ? `?usuarioId=${usuario.id}` : '';
       const [i, s, o] = await Promise.all([
         api.get<Inmueble>(`/inmuebles/${id}${qs}`),
-        api.get<Slot[]>(`/inmuebles/${id}/disponibilidad`),
+        api.get<Slot[]>(`/inmuebles/${id}/disponibilidad${qs}`),
         api.get<Oferta[]>(`/ofertas?inmuebleId=${id}`),
       ]);
       setInmueble(i);
@@ -60,33 +61,28 @@ export default function FichaInmueble() {
     void cargar();
   }, [cargar]);
 
-  const porDia = useMemo(() => {
-    const mapa = new Map<string, Slot[]>();
-    for (const s of slots) {
-      const k = diaClave(s.inicio);
-      mapa.set(k, [...(mapa.get(k) ?? []), s]);
-    }
-    return [...mapa.entries()];
-  }, [slots]);
+  const punto = useMemo<PuntoMapa[]>(
+    () =>
+      inmueble && inmueble.latitud != null && inmueble.longitud != null
+        ? [
+            {
+              id: inmueble.id,
+              lat: inmueble.latitud,
+              lng: inmueble.longitud,
+              estado: inmueble.estado === 'EN_ANTICRETICO' ? 'EN_ANTICRETICO' : 'PUBLICADO',
+              aproximado: !inmueble.ubicacionExacta,
+              titulo: inmueble.titulo,
+            },
+          ]
+        : [],
+    [inmueble],
+  );
 
   function abrirConfirmacion(t: Terminos) {
     setErrorContrato(null);
     // Moneda sugerida según la residencia (D4): dólares si vive en el exterior, bolivianos si vive en Bolivia.
     setMetodo(usuario && usuario.paisResidencia !== 'BO' ? 'USDC' : 'BOB');
     setTerminos(t);
-  }
-
-  async function reservar(slot: Slot) {
-    if (!usuario) return;
-    setAviso(null);
-    try {
-      await api.post('/visitas', { disponibilidadId: slot.id, inquilinoId: usuario.id });
-      setAviso(`Visita confirmada para ${fechaHora(slot.inicio)}. Ya puedes ver la dirección exacta.`);
-      await cargar();
-    } catch (e) {
-      setError(mensajeError(e));
-      await cargar();
-    }
   }
 
   async function tomar() {
@@ -162,7 +158,7 @@ export default function FichaInmueble() {
             <Dato t="Dueño" v={inmueble.dueno.nombre} extra={<Nivel nivel={inmueble.dueno.nivel} />} />
           </div>
 
-          <div className="card space-y-1">
+          <div className="card space-y-3">
             <Titulo nivel={3}>Ubicación</Titulo>
             {inmueble.direccionVisible ? (
               <p className="flex items-center gap-2 font-semibold"><Ubicacion className="h-4 w-4 text-terracota" /> {inmueble.direccion}</p>
@@ -171,38 +167,23 @@ export default function FichaInmueble() {
                 La dirección exacta se revela cuando agendas una visita. Por ahora: {inmueble.zona}, {inmueble.ciudad}.
               </p>
             )}
+            {punto.length > 0 ? (
+              <>
+                <Mapa puntos={punto} alto="h-64" zoomUnico={inmueble.ubicacionExacta ? 16 : 15} etiqueta={`Mapa de ${inmueble.titulo}`} />
+                <p className="text-xs text-suave">
+                  {inmueble.ubicacionExacta
+                    ? `Posición exacta: ${inmueble.latitud?.toFixed(5)}, ${inmueble.longitud?.toFixed(5)}.`
+                    : 'El círculo marca la zona aproximada; el alfiler exacto se ve al agendar una visita.'}
+                </p>
+              </>
+            ) : (
+              <p className="text-xs text-suave">Este inmueble no tiene la ubicación en el mapa.</p>
+            )}
           </div>
 
           <ReglasInmueble plantilla={inmueble.plantillaReglas} reglasRecomendadas={inmueble.reglasRecomendadas} />
 
-          <div className="card space-y-4">
-            <Titulo nivel={3}>Agenda una visita</Titulo>
-            {aviso && <Mensaje tipo="ok">{aviso}</Mensaje>}
-            {error && <Mensaje tipo="error">{error}</Mensaje>}
-            {slots.length === 0 && <p className="text-sm text-suave">El dueño todavía no definió horarios.</p>}
-            {porDia.map(([dia, lista]) => (
-              <div key={dia}>
-                <p className="mb-2 text-sm font-bold">{dia}</p>
-                <div className="flex flex-wrap gap-2">
-                  {lista.map((s) => (
-                    <button
-                      key={s.id}
-                      disabled={s.reservada || esDueno}
-                      onClick={() => reservar(s)}
-                      className={`chip ${s.reservada ? 'line-through opacity-40' : ''}`}
-                    >
-                      {hora(s.inicio)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {esDueno && <AgregarHorario inmuebleId={inmueble.id} onListo={cargar} />}
-            <p className="rounded-md bg-crema p-3 text-xs text-suave">
-              <Icono nombre="info" className="mr-1.5 inline h-4 w-4 align-text-bottom text-terracota" /> Qué revisar en la visita: humedad en paredes y techos, presión del agua, instalación eléctrica, estado de
-              puertas y ventanas, y qué servicios paga cada parte. Pregunta también por el plan de devolución del dueño.
-            </p>
-          </div>
+          <AgendaVisitas inmueble={inmueble} slots={slots} usuario={usuario} esDueno={esDueno} onCambio={cargar} />
 
           <Ofertas inmueble={inmueble} ofertas={ofertas} esDueno={esDueno} onCambio={cargar} onTomar={(o) => abrirConfirmacion({ montoUsdc: o.montoUsdc, plazoMeses: o.plazoMeses, origen: 'tu oferta aceptada' })} />
         </div>
@@ -341,38 +322,6 @@ function Fila({ t, v }: { t: string; v: string }) {
     <div className="flex justify-between gap-3">
       <span className="text-suave">{t}</span>
       <span className="text-right font-semibold">{v}</span>
-    </div>
-  );
-}
-
-function AgregarHorario({ inmuebleId, onListo }: { inmuebleId: string; onListo: () => void }) {
-  const [valor, setValor] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  async function agregar() {
-    if (!valor) return;
-    const inicio = new Date(valor);
-    const fin = new Date(inicio.getTime() + 45 * 60_000);
-    try {
-      await api.post(`/inmuebles/${inmuebleId}/disponibilidad`, {
-        slots: [{ inicio: inicio.toISOString(), fin: fin.toISOString() }],
-      });
-      setValor('');
-      setError(null);
-      onListo();
-    } catch (e) {
-      setError(mensajeError(e));
-    }
-  }
-
-  return (
-    <div className="space-y-2 border-t-2 border-dashed border-borde pt-4">
-      <p className="label">Agregar un horario libre (visitas de 45 min)</p>
-      <div className="flex flex-wrap gap-2">
-        <input type="datetime-local" className="input min-w-0 flex-1" value={valor} onChange={(e) => setValor(e.target.value)} />
-        <button className="btn btn-andino" onClick={agregar}>Agregar</button>
-      </div>
-      {error && <Mensaje tipo="error">{error}</Mensaje>}
     </div>
   );
 }

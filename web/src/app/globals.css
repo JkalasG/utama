@@ -185,3 +185,15 @@ h1, h2, h3, .font-display {
     @apply border-cochinilla bg-cochinilla text-lana hover:border-cochinilla;
   }
 }
+
+/* ---- Mapa (Leaflet) ---- */
+.mapa { background: var(--c-borde); z-index: 0; }
+.mapa .leaflet-container { font-family: var(--font-sans); background: var(--c-borde); }
+/* En el tema oscuro se invierte el mapa base para que no encandile. */
+[data-theme="dark"] .mapa .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7); }
+.mapa .leaflet-control-zoom a { background: var(--c-papel); color: var(--c-tinta); border-color: var(--c-borde); }
+.mapa .leaflet-control-attribution { background: color-mix(in srgb, var(--c-papel) 85%, transparent); color: var(--c-suave); font-size: 10px; }
+.mapa .leaflet-control-attribution a { color: var(--c-suave); }
+.pin-utama { background: none; border: 0; }
+.pin-utama svg { display: block; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35)); transition: transform 0.15s; transform-origin: 50% 100%; }
+.pin-utama.sel svg { transform: scale(1.3); }

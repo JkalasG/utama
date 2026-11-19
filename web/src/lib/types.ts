@@ -39,6 +39,10 @@ export interface Inmueble {
   zona: string;
   direccion: string | null;
   direccionVisible: boolean;
+  /** Posición para el mapa: aproximada para el público, exacta para el dueño y quien tiene visita o contrato. */
+  latitud: number | null;
+  longitud: number | null;
+  ubicacionExacta: boolean;
   superficieM2: number;
   ambientes: number;
   dormitorios: number;
@@ -66,6 +70,12 @@ export interface Slot {
   inicio: string;
   fin: string;
   reservada: boolean;
+  /** Id de la visita, si es del usuario o si el usuario es el dueño. */
+  visitaId: string | null;
+  /** La visita reservada en este horario es del usuario actual. */
+  mia: boolean;
+  /** Solo para el dueño: quién reservó. */
+  reservadaPor: string | null;
 }
 
 export interface Visita {
